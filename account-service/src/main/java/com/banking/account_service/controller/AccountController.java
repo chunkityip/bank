@@ -20,8 +20,9 @@ import java.math.BigDecimal;
 public class AccountController {
     private final AccountService accountService;
 
+    @PostMapping
     public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(request));
     }
 
     @GetMapping("/{accountNumber}")
