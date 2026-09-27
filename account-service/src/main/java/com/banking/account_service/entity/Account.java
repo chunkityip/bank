@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Account {
     @Id
+    @GeneratedValue (strategy = GenerationType.IDENTITY)    
     private long id;
 
     @Column(nullable = false, unique = true)
@@ -31,9 +32,11 @@ public class Account {
     @Column(nullable = false)
     private String phone;
 
+    @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
     private BigDecimal balance;

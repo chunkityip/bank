@@ -23,12 +23,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponse createAccount(CreateAccountRequest request) {
-        log.info("Creating account request {}", request.getEmail());
+        //log for creatation : display email as Creating account request {} from request
+        
 
-        if (accountRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("account with email " + request.getEmail() + " already exists");
+        // if email already exists from repository, throw expection 
+         new RuntimeException("Email " + request.getEmail() + " already exists");
         }
 
+        //Set all value from account entity
         Account account = new Account();
         account.setAccountHolderName(request.getAccountHolderName());
         account.setEmail(request.getEmail());
@@ -36,17 +38,8 @@ public class AccountServiceImpl implements AccountService {
         account.setAccountType(request.getAccountType());
         account.setStatus(AccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
-        // requirement for account number : 1. unique  2. 12 digits
-        account.setAccountNumber(generateAccountNumber());
-        account.setDailyTransactionLimit(
-            request.getAccountType() == AccountType.SAVINGS
-                ? new BigDecimal("100000")
-                : new BigDecimal("500000")
-        );
-        Account saveAccount = accountRepository.save(account);
-        log.info("Account created {}", saveAccount);
-
-        return mapToResponse(saveAccount);
+        // if account type is SAVINGS , set DailyTransactionLimit to 100000 , else 500000
+        
     }
 
     // Create unique 12 digit account number

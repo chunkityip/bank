@@ -17,20 +17,20 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class CreateAccountRequest {
 
-    @NotBlank(message = "Account holder name is required")
+    //message = "Account holder name is required"
+    @NotNull(message = "Account holder name is required")
     private String accountHolderName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotNull(message = "Email is required")
+    @Email (message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Phone is required")
     private String phone;
 
     @NotNull(message = "Account type is required")
     private AccountType accountType;
 
     @NotNull(message = "Initial deposit is required")
-    @Positive(message = "Initial deposit must be positive")
+    @NotBlank(message = "Initial deposit must be positive")
     private BigDecimal initialDeposit;
 }
