@@ -23,11 +23,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponse createAccount(CreateAccountRequest request) {
-        //log for creatation : display email as Creating account request {} from request
-        
+        //log for creatation : display email
+        log.info("Email for new account" , request.getEmail());
 
-        // if email already exists from repository, throw expection 
-         new RuntimeException("Email " + request.getEmail() + " already exists");
+        // if email already exists from repository, throw expection
+        if (accountRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email " + request.getEmail() + " already exists");
         }
 
         //Set all value from account entity
@@ -39,7 +40,32 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus(AccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
         // if account type is SAVINGS , set DailyTransactionLimit to 100000 , else 500000
-        
+        account.setDailyTransactionLimit(
+            request.getAccountType() == AccountType.SAVINGS
+            ? new BigDecimal("1000000")
+            : new BigDecimal("5000000")
+        );
+
+        //Create a new Account object call saveAccount , save account to it
+        Account saveAccount = accountRepository.save(account);
+
+        return mapToResponse(saveAccount);
+    }
+
+    private AccountResponse mapToResponse(Account account) {
+        AccountResponse response = new AccountResponse();
+        response.setId(account.getId());
+        response.setAccountNumber(account.getAccountNumber());
+        response.setAccountHolderName(account.getAccountHolderName());
+        response.setEmail(account.getEmail());
+        response.setPhone(account.getPhone());
+        response.setAccountType(account.getAccountType());
+        response.setStatus(account.getStatus());
+        response.setBalance(account.getBalance());
+        response.setDailyTransactionLimit(account.getDailyTransactionLimit());
+        response.setCreatedAt(account.getCreatedAt());
+
+        return response;
     }
 
     // Create unique 12 digit account number
