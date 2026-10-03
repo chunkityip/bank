@@ -2,6 +2,7 @@ package service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 @Slf4j
 public class NotificationService {
 
+    @KafkaListener(topics = "transaction.otp.generated")
     public void consumeOtpGenerated(@Payload Map<String, Object> payload) {
         try {
             String accountNumber = (String) payload.get("accountNumber");
@@ -20,6 +22,7 @@ public class NotificationService {
             String reason = (String) payload.get("reason");
 
             sendAlert(
+                    accountNumber,
                     "TRANSACTION VERIFICATION REQUIRED",
                     String.format("Suspicous activity detected on your account. " +
                                   "Reason: %s. " +
@@ -33,4 +36,7 @@ public class NotificationService {
         }
     }
 
+    private void sendAlert(String accountNumber, String subject , String message) {
+
+    }
 }

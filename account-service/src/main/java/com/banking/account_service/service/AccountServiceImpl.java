@@ -87,22 +87,6 @@ public class AccountServiceImpl implements AccountService {
         throw new RuntimeException("Unable to generate unique account number");
     }
 
-    private AccountResponse mapToResponse(Account account) {
-        AccountResponse response = new AccountResponse();
-        response.setId(account.getId());
-        response.setAccountNumber(account.getAccountNumber());
-        response.setAccountHolderName(account.getAccountHolderName());
-        response.setEmail(account.getEmail());
-        response.setPhone(account.getPhone());
-        response.setAccountType(account.getAccountType());
-        response.setStatus(account.getStatus());
-        response.setBalance(account.getBalance());
-        response.setDailyTransactionLimit(account.getDailyTransactionLimit());
-        response.setCreatedAt(account.getCreatedAt());
-
-        return response;
-    }
-
     @Override
     public AccountResponse getAccount(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
