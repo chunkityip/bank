@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FraudDetectionServiceImpl {
+public class FraudDetectionServiceImpl implements FraudDetectionService {
 
     private final AccountServiceClient accountServiceClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;

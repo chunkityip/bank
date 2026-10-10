@@ -13,6 +13,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FraudDetectionEventConsumer {
 
+    private final FraudDetectionService fraudDetectionService;
+
     @KafkaListener(topics = "transaction.initiated", groupId = "fraud-detection-group")
     public void consumeTransactionInitiated(@Payload Map<String, Object> payload) {
 
@@ -21,6 +23,7 @@ public class FraudDetectionEventConsumer {
         try {
             fraudDetectionService.checkTransaction(payload);
         } catch (Exception e) {
+            log.error("Error handling transaction initiated event", e);
         }
 
     }

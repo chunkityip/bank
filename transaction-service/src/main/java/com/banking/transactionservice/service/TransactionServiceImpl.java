@@ -103,6 +103,7 @@ public class TransactionServiceImpl implements TransactionService {
 //        return mapToResponse(transactionRepository.save(transaction));
 //    }
 
+    @Override
     public TransferResponse verifyOTP(String transactionID, String otp) {
         log.info("OTP verification for the transaction: {}", transactionID);
 
@@ -111,17 +112,17 @@ public class TransactionServiceImpl implements TransactionService {
 
         String otpKey = "verification:otp:" + transactionID;
         String storedOTP = redisTemplate.opsForValue().get(otpKey);
-        if (storedOTP == null ) {
+
+        if (storedOTP == null) {
             log.warn("OTP expired for transaction: {}", transactionID);
             compensateTransaction(transaction, "OTP expired - transaction cancelled and amount refunded");
             return mapToResponse(transaction);
+        }
 
-            if(!storedOTP.equals(otp)) {
-                log.warn("Invalid OTP for transaction: {}", transactionID);
-                redisTemplate.delete(otpKey);
-                blockAccountAndCompensate(transaction, "Wrong  OTP - transaction cancelled, account blocked fro security reasons");
-                return mapToResponse(transaction);
-            }
+        if (!storedOTP.equals(otp)) {
+            log.warn("Invalid OTP for transaction: {}", transactionID);
+            redisTemplate.delete(otpKey);
+            blockAccountAndCompensate(transaction, "Wrong OTP - transaction cancelled, account blocked for security reasons");
             return mapToResponse(transaction);
         }
 
@@ -185,6 +186,19 @@ public class TransactionServiceImpl implements TransactionService {
         kafkaTemplate.send(TRANSACTION_COMPLETED_TOPIC, transaction.getId(), completedEvent);
 
         log.info("SAGA COMPLETE - Transaction {} completed successfully", transaction.getId());
+    }
+
+    public void processCleanResult(String transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new RuntimeException("Transaction not found: " + transactionId));
+
+        log.info("Processing clean result for transaction: {}", transactionId);
+
+        if(transaction.getStatus() != TransactionStatus.PROCESSING) {
+            log.warn("Transaction {} is not in PROCESSING state, current state: {}", transactionId, transaction.getStatus());
+            return;
+        }
+        completeTransaction(transaction);
     }
 
     private TransferResponse mapToResponse(Transaction transaction) {

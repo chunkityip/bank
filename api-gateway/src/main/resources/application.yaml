@@ -1,3 +1,31 @@
 spring:
   application:
     name: api-gateway
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: account-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/accounts/**
+            - id: transaction-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/v1/transactions/**
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
