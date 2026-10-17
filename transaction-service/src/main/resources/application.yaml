@@ -45,6 +45,8 @@ spring:
 
 server:
   port: 8082
+  # Trust X-Forwarded-* from the API Gateway, so Swagger "Try it out" targets the gateway when docs are loaded through it
+  forward-headers-strategy: framework
 
 account:
   service:

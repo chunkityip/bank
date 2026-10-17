@@ -52,6 +52,8 @@ spring:
 
 server:
   port: 8085
+  # Trust X-Forwarded-* from the API Gateway, so Swagger "Try it out" targets the gateway when docs are loaded through it
+  forward-headers-strategy: framework
 
 razorpay:
   key-id: rzp_test_us_Tp45DnX3P75Nwt
