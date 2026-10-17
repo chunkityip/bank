@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/v1/accounts")
 @Slf4j
 @RequiredArgsConstructor
 public class AccountControllerImpl implements AccountController {

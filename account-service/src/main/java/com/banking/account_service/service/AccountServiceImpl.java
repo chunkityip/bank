@@ -24,7 +24,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse createAccount(CreateAccountRequest request) {
         //log for creatation : display email
-        log.info("Email for new account" , request.getEmail());
+        log.info("Email for new account: {}", request.getEmail());
 
         // if email already exists from repository, throw expection
         if (accountRepository.existsByEmail(request.getEmail())) {
@@ -33,6 +33,7 @@ public class AccountServiceImpl implements AccountService {
 
         //Set all value from account entity
         Account account = new Account();
+        account.setAccountNumber(generateAccountNumber());
         account.setAccountHolderName(request.getAccountHolderName());
         account.setEmail(request.getEmail());
         account.setPhone(request.getPhone());

@@ -28,14 +28,15 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${razorpay.key_id}")
+    @Value("${razorpay.key-id}")
     private String keyId;
 
-    @Value("${razorpay.key_secret}")
+    @Value("${razorpay.key-secret}")
     private String keySecret;
 
     private static final String PAYMENT_COMPLETED_TOPIC = "payment.completed";
     private static final String PAYMENT_FAILED_TOPIC = "payment.failed";
+    private static final String CURRENCY = "INR";
 
     @Override
     public CreatePaymentOrderResponse createPaymentOrder(CreatePaymentRequest request) throws RazorpayException {
@@ -47,7 +48,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         JSONObject orderRequest = new JSONObject();
         orderRequest.put("amount", convertedAmount);
-        orderRequest.put("currency", "INR");
+        orderRequest.put("currency", CURRENCY);
         orderRequest.put("receipt", "rcpt_" + System.currentTimeMillis() + UUID.randomUUID().toString().replace("-", "").substring(0, 10));
 
         Order razorpayOrder = razorpayClient.orders.create(orderRequest);
@@ -58,7 +59,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setRazorpayOrderId(razorpayOrder.get("id").toString());
         payment.setAccountNumber(request.getAccountNumber());
         payment.setAmount(request.getAmount());
-        payment.setCurrency("USD");
+        payment.setCurrency(CURRENCY);
         payment.setStatus(PaymentStatus.CREATED);
         payment.setDescription(request.getDescription());
 
@@ -68,7 +69,7 @@ public class PaymentServiceImpl implements PaymentService {
                 savedPayment.getId(),
                 razorpayOrder.get("id").toString(),
                 request.getAmount(),
-                "USD",
+                CURRENCY,
                 "CREATED",
                 keyId
         );

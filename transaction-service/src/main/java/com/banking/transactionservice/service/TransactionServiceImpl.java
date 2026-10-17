@@ -8,7 +8,7 @@ import com.banking.transactionservice.entity.TransactionStatus;
 import com.banking.transactionservice.entity.TransactionType;
 import com.banking.transactionservice.event.TransactionCompletedEvent;
 import com.banking.transactionservice.repository.TransactionRepository;
-import event.TransactionInitiatedEvent;
+import com.banking.transactionservice.event.TransactionInitiatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -134,7 +134,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void compensateTransaction(Transaction transaction, String reason) {
-        log.warn("SAGA COMPENSATION - refunding: {}, reason: {}", transaction.getSenderAccountNumber(), transaction.getAmount(), reason);
+        log.warn("SAGA COMPENSATION - refunding: {}, amount: {}, reason: {}", transaction.getSenderAccountNumber(), transaction.getAmount(), reason);
 
         accountServiceClient.creditBalance(
                 transaction.getSenderAccountNumber(),

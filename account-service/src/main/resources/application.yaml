@@ -3,9 +3,9 @@ spring:
     name: account-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/account_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3307/account_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -22,15 +22,21 @@ spring:
       group-id: account-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
       properties:
         spring:
           json:
             trusted:
               packages: "*"
+            use:
+              type:
+                headers: false
+            value:
+              default:
+                type: java.util.HashMap
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
 
 server:
   port: 8081

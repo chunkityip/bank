@@ -28,7 +28,7 @@ public class AccountEventConsumer {
     @KafkaListener(topics = "transaction.completed")
     public void consumerTransactionCompleted(@Payload Map<String, Object> payload){
         try {
-            String receiverAccount =  (String) payload.get("receiverAccount");
+            String receiverAccount =  (String) payload.get("receiverAccountNumber");
             BigDecimal amount =  new BigDecimal(payload.get("amount").toString());
 
             log.info("Crediting account: {}, amount: {}", receiverAccount, amount);
@@ -41,11 +41,11 @@ public class AccountEventConsumer {
     @KafkaListener(topics = "fraud.detected")
     public void consumerFraudDetected(@Payload Map<String, Object> payload){
         try {
-            String accountNumber =  (String) payload.get("accountNumber");
+            String accountNumber =  (String) payload.get("senderAccountNumber");
             log.info("Fraud detected - blocking account: {}", accountNumber);
-
+            accountService.blockAccount(accountNumber);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Error while blocking account: {}", e.getMessage());
         }
     }
 }

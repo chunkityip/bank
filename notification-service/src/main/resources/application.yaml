@@ -8,12 +8,18 @@ spring:
       group-id: notification-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
       properties:
         spring:
           json:
             trusted:
               packages: "*"
+            use:
+              type:
+                headers: false
+            value:
+              default:
+                type: java.util.HashMap
 
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
