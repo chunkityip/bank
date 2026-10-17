@@ -5,6 +5,10 @@ import com.banking.account_service.dto.CreateAccountRequest;
 import com.banking.account_service.entity.Account;
 import com.banking.account_service.entity.AccountStatus;
 import com.banking.account_service.entity.AccountType;
+import com.banking.account_service.exception.AccountNotActiveException;
+import com.banking.account_service.exception.AccountNotFoundException;
+import com.banking.account_service.exception.EmailAlreadyExistsException;
+import com.banking.account_service.exception.InsufficientFundsException;
 import com.banking.account_service.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +32,7 @@ public class AccountServiceImpl implements AccountService {
 
         // if email already exists from repository, throw expection
         if (accountRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email " + request.getEmail() + " already exists");
+            throw new EmailAlreadyExistsException(request.getEmail());
         }
 
         //Set all value from account entity
@@ -91,7 +95,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse getAccount(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
-            .orElseThrow(() -> new RuntimeException("Account not found"));
+            .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         return mapToResponse(account);
     }
@@ -99,7 +103,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public BigDecimal getBalance(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
-            .orElseThrow(() -> new RuntimeException("Account not found"));
+            .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         return account.getBalance();
     }
@@ -108,7 +112,7 @@ public class AccountServiceImpl implements AccountService {
     public void blockAccount(String accountNumber) {
         log.info("Blocking account: {}", accountNumber);
         Account account = accountRepository.findByAccountNumber(accountNumber)
-            .orElseThrow(() -> new RuntimeException("Account not found"));
+            .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         account.setStatus(AccountStatus.BLOCKED);
         accountRepository.save(account);
@@ -120,14 +124,14 @@ public class AccountServiceImpl implements AccountService {
         log.info("Deducting balance {} from account: {}", amount , accountNumber);
 
         Account account = accountRepository.findByAccountNumber(accountNumber)
-            .orElseThrow(() -> new RuntimeException("Account not found"));
+            .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Account is not active "+ accountNumber);
+            throw new AccountNotActiveException(accountNumber);
         }
 
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient funds for account " + accountNumber);
+            throw new InsufficientFundsException(accountNumber);
         }
 
         account.setBalance(account.getBalance().subtract(amount));
@@ -141,7 +145,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("Crediting {} to account: {}", amount, accountNumber);
 
         Account account = accountRepository.findByAccountNumber(accountNumber)
-            .orElseThrow(() -> new RuntimeException("Account not found"));
+            .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         account.setBalance(account.getBalance().add(amount));
         accountRepository.save(account);

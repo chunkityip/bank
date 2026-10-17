@@ -11,6 +11,14 @@ spring:
     gateway:
       server:
         webflux:
+          # CORS is handled only here - downstream services must NOT add their own CORS headers,
+          # otherwise the browser sees duplicate Access-Control-Allow-Origin and rejects the response
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "http://localhost:4200"
+                allowedMethods: "*"
+                allowedHeaders: "*"
           routes:
             # Account Service
             - id: account-service

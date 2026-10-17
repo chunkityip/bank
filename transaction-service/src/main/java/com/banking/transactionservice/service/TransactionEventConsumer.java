@@ -2,6 +2,7 @@ package com.banking.transactionservice.service;
 
 import com.banking.transactionservice.entity.Transaction;
 import com.banking.transactionservice.entity.TransactionStatus;
+import com.banking.transactionservice.exception.TransactionNotFoundException;
 import com.banking.transactionservice.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class TransactionEventConsumer {
             log.info("Verification required - transactionId: {}, reason: {}", transactionId, reason);
 
             Transaction transaction = transactionRepository.findById(transactionId)
-                    .orElseThrow(() -> new RuntimeException("Transaction not found: " + transactionId));
+                    .orElseThrow(() -> new TransactionNotFoundException(transactionId));
 
             if(transaction.getStatus() != TransactionStatus.PROCESSING) {
                 log.warn("Transaction {} is not in PROCESSING state, current state: {}", transactionId, transaction.getStatus());

@@ -9,6 +9,7 @@ import com.banking.transactionservice.entity.TransactionType;
 import com.banking.transactionservice.event.TransactionCompletedEvent;
 import com.banking.transactionservice.repository.TransactionRepository;
 import com.banking.transactionservice.event.TransactionInitiatedEvent;
+import com.banking.transactionservice.exception.TransactionNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -76,7 +77,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransferResponse getTransaction(String transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+                .orElseThrow(() -> new TransactionNotFoundException(transactionId));
         return mapToResponse(transaction);
     }
 
@@ -92,7 +93,7 @@ public class TransactionServiceImpl implements TransactionService {
 //    @Override
 //    public TransferResponse verifyOTP(String transactionId, String otp) {
 //        Transaction transaction = transactionRepository.findById(transactionId)
-//                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+//                .orElseThrow(() -> new TransactionNotFoundException(transactionId));
 //
 //        if (otp == null || otp.isBlank()) {
 //            throw new IllegalArgumentException("OTP is required");
@@ -108,7 +109,7 @@ public class TransactionServiceImpl implements TransactionService {
         log.info("OTP verification for the transaction: {}", transactionID);
 
         Transaction transaction = transactionRepository.findById(transactionID)
-                .orElseThrow(() -> new RuntimeException("Transaction not found: " + transactionID));
+                .orElseThrow(() -> new TransactionNotFoundException(transactionID));
 
         String otpKey = "verification:otp:" + transactionID;
         String storedOTP = redisTemplate.opsForValue().get(otpKey);
@@ -190,7 +191,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     public void processCleanResult(String transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new RuntimeException("Transaction not found: " + transactionId));
+                .orElseThrow(() -> new TransactionNotFoundException(transactionId));
 
         log.info("Processing clean result for transaction: {}", transactionId);
 
